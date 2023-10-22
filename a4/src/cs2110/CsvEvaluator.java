@@ -56,13 +56,23 @@ public class CsvEvaluator {
         // The left digits are the representation of x divided by the base (the "quotient").
 
         // TODO: Implement this method according to its specification.
-        String col = "";
-        String[] letters = ["A", "B", "C"]
-        if (n / 26 == 0) {
-            return col += (char)(n + 64);
+        String[] al = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+        int r = n % 26;
+        if(r == 0) {
+            if(n == 0) {
+                return "";
+            } else {
+                r = 26;
+            }
         }
-        col += colToLetters(n % 26);
-        return col;
+        String remainder = al[r - 1];
+
+        int q = (n - r) / 26;
+        if(q == 0) {
+            return String.valueOf(remainder);
+        }
+
+        return colToLetters(q) + remainder;
     }
 
     /**
