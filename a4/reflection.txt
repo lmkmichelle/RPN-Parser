@@ -2,10 +2,10 @@
 
 ## Submitter metadata
 
-Partner 1: Firstname Lastname (NetID)  - TODO
-Partner 2: Firstname Lastname (NetID)  - delete if working solo
+Partner 1: Firstname Lastname (NetID)  - Michelle Mercer (mzm24)
+Partner 2: Firstname Lastname (NetID)  - Eric Qiu (sq225)
 
-Hours spent working on this assignment: 0.0  - TODO
+Hours spent working on this assignment: 12
 
 ## Verification questions
 
@@ -14,15 +14,17 @@ Please use the `RpnParser` program to answer these questions:
 1. How many operations are required to evaluate this expression for the surface area of a dodecahedron?
    `3 25 10 5 sqrt() * + sqrt() * edges 2 ^ *`
 
-   Answer: TODO
+   Answer: 7
 
 2. How many operations are required to evaluate the optimized form of that expression?
 
-   Answer: TODO
+   Answer: 2
 
 ## Reflection questions
 
 1. What part of the assignment did you find the trickiest to understand or get working?
    Was there a particular insight or diagnostic technique that lead to a breakthrough?
 
-   Answer: TODO
+   Answer: We had the most trouble understanding how to have the exceptions `IncompleteRpnException` and
+   `UndefinedFunctionException` incorporated in RpnParser. We considered edge cases through hypothetically working out
+   certain problems on paper in order to incorporate those exceptions.

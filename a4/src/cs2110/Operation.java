@@ -1,21 +1,20 @@
 package cs2110;
 
 import java.util.Set;
+import java.util.HashSet;
 
 /**
  * An expression tree node representing the binary operators common in arithmetic
  */
 public class Operation implements Expression {
+    private Operator op;
+    private Expression left;
+    private Expression right;
 
-    private static int count = 0;
-    private Operator o;
-    private Constant a;
-    private Constant b;
-
-    public Operation(Operator o, Constant a, Constant b){
-        this.a = a;
-        this.b = b;
-        this.o = o;
+    public Operation(Operator op, Expression left, Expression right){
+        this.left = left;
+        this.right = right;
+        this.op = op;
     }
 
     /**
@@ -24,14 +23,13 @@ public class Operation implements Expression {
      * This counts as one `operation`.
      */
     @Override
-    public double eval(VarTable vars) {
-        count += 1;
-        return o.operate(a.value, b.value);
+    public double eval(VarTable vars) throws UnboundVariableException {
+        return op.operate(left.eval(vars), right.eval(vars));
     }
 
     @Override
     public int opCount() {
-        return count;
+        return 1 + left.opCount() + right.opCount();
     }
 
     /**
@@ -42,9 +40,7 @@ public class Operation implements Expression {
      */
     @Override
     public String infixString() {
-        String f = "";
-        f += "(" + a.value + " " + o.toString() + " " + b.value + ")";
-        return f;
+        return "(" + left.infixString() + " " + op.symbol() + " " + right.infixString() + ")";
     }
 
     /**
@@ -53,24 +49,44 @@ public class Operation implements Expression {
      */
     @Override
     public String postfixString() {
-        throw new UnsupportedOperationException();
+        return left.postfixString() + " " + right.postfixString() + " " + op.symbol();
     }
-
+    /**
+     * Returns an Expression containing the optimized Operation object. An Operation can be fully optimized to a Constant if
+     * both operand children in the Operation object can be fully optimized to Constants. Otherwise, Operation can still be
+     * partially optimized by creating a new copy where the children are replaced with their optimized forms.
+     */
     @Override
     public Expression optimize(VarTable vars) {
-        throw new UnsupportedOperationException();
+        left = left.optimize(vars);
+        right = right.optimize(vars);
+        try {
+            return new Constant(this.eval(vars));
+        } catch (UnboundVariableException e) {
+            return new Operation(op, left, right);
+        }
     }
 
+    /**
+     * Returns a Set containing all the Variable objects that the function depends on.
+     */
     @Override
     public Set<String> dependencies() {
-        throw new UnsupportedOperationException();
+        Set<String> deps = new HashSet<String>();
+        deps.addAll(left.dependencies());
+        deps.addAll(right.dependencies());
+        return deps;
     }
 
     /**
      * Returns true if two Operation nodes are equal, and false if they are not. Two Operation nodes
      * are considered equal if both their operator and operand nodes are equal.
      */
-    public boolean equals() {
-        throw new UnsupportedOperationException();
+    public boolean equals(Object o) {
+        if (o instanceof Operation) {
+            Operation var = (Operation) o;
+            return op.equals(var.op) && left.equals(var.left) && right.equals(var.right);
+        }
+        return false;
     }
 }

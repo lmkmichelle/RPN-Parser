@@ -34,10 +34,48 @@ public class RpnParser {
                 Token.Number numToken = (Token.Number) token;
                 stack.push(new Constant(numToken.doubleValue()));
             }
+            if (token instanceof Token.Operator) {
+                // When the current token is an Operator, there must exist at least two expressions left on the stack to be
+                // the two operands for the operation to continue
+                if (stack.size() < 2) {
+                    throw new IncompleteRpnException("There are not enough expressions left in the stack for the operand to perform"
+                            + "the operation.", stack.size());
+                }
+                Expression right = stack.pop();
+                Expression left = stack.pop();
+                Token.Operator opToken = (Token.Operator) token;
+                Operation op = new Operation(opToken.opValue(), left, right);
+                stack.push(op);
+
+            }
+            if (token instanceof Token.Function) {
+
+                // When the current token is an Application node, there must exist at least one expression left on the stack for
+                // the argument to execute the Function
+                if (stack.size() < 1) {
+                    throw new IncompleteRpnException("There are not enough expressions left in the stack for the function to execute."
+                            , stack.size());
+                }
+                Expression expr = stack.pop();
+                Token.Function funcToken = (Token.Function) token;
+                funcDefs = UnaryFunction.mathDefs();
+                if (!funcDefs.containsKey(funcToken.name())) {
+                    throw new UndefinedFunctionException("This function is not defined.");
+                }
+                UnaryFunction un = funcDefs.get(funcToken.name());
+                Application a = new Application(un, expr);
+                stack.push(a);
+            }
+            if (token instanceof Token.Variable) {
+                Token.Variable varToken = (Token.Variable) token;
+                stack.push(new Variable((token.value())));
+            }
         }
 
-        // TODO: Return the overall expression node.  (This might also be a good place to check that
-        // the string really did correspond to a single expression.)
-        throw new UnsupportedOperationException();
+        if (stack.size() != 1) {
+            throw new IncompleteRpnException("The final expression does not leave exactly one expression left in the stack",
+                    stack.size());
+        }
+        return stack.pop();
     }
 }

@@ -1,5 +1,6 @@
 package cs2110;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -54,22 +55,42 @@ public class Variable implements Expression {
         return name;
     }
 
-
+    /**
+     * Returns an Expression containing the optimized Variable object. If the Variable object has an assigned value within the
+     * provided Variable Table, then optimize() will return a Constant object representing that value. Otherwise, it will
+     * optimize to itself.
+     */
     @Override
     public Expression optimize(VarTable vars) {
-        throw new UnsupportedOperationException();
+        try {
+            return new Constant(vars.get(name));
+        } catch (UnboundVariableException e) {
+            return this;
+        }
     }
 
+
+    /**
+     * Returns a Set containing all the Variable objects that a formula depends on. A Variable node will
+     * depend only on itself.
+     */
     @Override
     public Set<String> dependencies() {
-        throw new UnsupportedOperationException();
+        Set<String> deps = new HashSet<String>();
+        deps.add(name);
+        return deps;
     }
 
     /**
      * Returns true if two variables are equal, and false if they are not. Variables are considered equal if they
      * represent the same variable name.
      */
-    public boolean equals(Variable vars) {
-        return name == vars.name;
+
+    @Override
+    public boolean equals(Object vars) {
+        if (vars instanceof Variable) {
+            return name.equals(((Variable) vars).name);
+        }
+        return false;
     }
 }

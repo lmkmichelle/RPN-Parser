@@ -1,5 +1,6 @@
 package cs2110;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -7,16 +8,22 @@ import java.util.Set;
  * any non-empty subexpression
  */
 public class Application implements Expression {
-    private Expression exp;
-    private static int count = 0;
+    private Expression argument;
+
+    private UnaryFunction func;
 
     /**
      * Returns the result of applying the function to the argument child passed into the function.
      * Calling its function counts as one `operation`.
      */
+
+    public Application(UnaryFunction func, Expression argument) {
+        this.func = func;
+        this.argument = argument;
+    }
     @Override
-    public double eval(VarTable vars) {
-        throw new UnsupportedOperationException();
+    public double eval(VarTable vars) throws UnboundVariableException {
+        return func.apply(argument.eval(vars));
     }
 
     /**
@@ -24,7 +31,7 @@ public class Application implements Expression {
      */
     @Override
     public int opCount() {
-        throw new UnsupportedOperationException();
+        return 1 + argument.opCount();
     }
 
     /**
@@ -34,7 +41,7 @@ public class Application implements Expression {
      */
     @Override
     public String infixString() {
-        throw new UnsupportedOperationException();
+        return func.name() + "(" + argument.infixString() + ")";
     }
 
     /**
@@ -44,24 +51,40 @@ public class Application implements Expression {
      */
     @Override
     public String postfixString() {
-        throw new UnsupportedOperationException();
+        return argument.postfixString() + " " + func.name() + "()";
     }
 
+    /**
+     * Returns an Expression containing the optimized Application object. An Application can be fully optimized to a Constant if
+     * the operand children in the Application object can be fully optimized to Constants. Otherwise, Application can still be
+     * partially optimized by creating a new copy where the child is replaced with its optimized form.
+     */
     @Override
     public Expression optimize(VarTable vars) {
-        throw new UnsupportedOperationException();
+        argument = argument.optimize(vars);
+        try {
+            return new Constant(this.eval(vars));
+        } catch (UnboundVariableException e) {
+            return new Application(this.func, argument);
+        }
     }
 
+    /**
+     * Returns a Set containing all the unique Variable objects used in the operation.
+     */
     @Override
     public Set<String> dependencies() {
-        throw new UnsupportedOperationException();
+        return argument.dependencies();
     }
 
     /**
      * Returns true if two Application nodes are equal, and false if they are not. Two Application nodes
      * are considered equal if both their functions and arguments are equal
      */
-    public boolean equals() {
-        throw new UnsupportedOperationException();
+    public boolean equals(Object a) {
+        if (a instanceof Application) {
+            return func.equals(((Application) a).func) && argument.equals(((Application) a).argument);
+        }
+        return false;
     }
 }
