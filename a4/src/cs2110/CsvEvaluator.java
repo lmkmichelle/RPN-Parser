@@ -2,7 +2,10 @@ package cs2110;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.HashMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -33,10 +36,38 @@ public class CsvEvaluator {
         // A mapping of the coordinates of cells we have seen so far to their numerical values (if
         // they are a number or a successfully evaluated formula).
         VarTable vars = new MapVarTable();
+        Map<String, Integer> cols = new HashMap<>();
 
-        // TODO: Implement this method according to its specification.
-        throw new UnsupportedOperationException();
+        for (CSVRecord r : parser) {
+            int row = (int) parser.getCurrentLineNumber();
+            for (String s : r) {
+                String col = colToLetters(r.toList().indexOf(s) + 1);
 
+                //case if cell is an equation
+                if (s.length() >= 1 && s.charAt(0) == '=') {
+                    try {
+                        Expression expr = RpnParser.parse(s.substring(1), defs);
+                        double constant = expr.eval(vars);
+                        vars.set(col + row, constant);
+                        printer.print(constant);
+                    } catch (UnboundVariableException | IncompleteRpnException | UndefinedFunctionException e){
+                        printer.print("#N/A");
+                    }
+                } else {
+                    //trys to evaluate the cell; if it is a word, then parsing will throw an exception,
+                    //which will be caught. If it is a constant, then parse will return the constant,
+                    //which is successfully saved into the vartable
+                    try {
+                        double value = Double.parseDouble(s);
+                        vars.set(col + row, value);
+                        printer.print(s);
+                    } catch (NumberFormatException e) {
+                        printer.print(s);
+                    }
+                }
+            }
+            printer.println();
+        }
         // Note that `CSVParser` implements `Iterable<CSVRecord>` and that `CSVRecord` implements
         // `Iterable<String>`.  This may suggest a solution using "enhanced for-loops" (though this
         // is not strictly required).
@@ -55,20 +86,17 @@ public class CsvEvaluator {
         // "remainder" - may be equal to the base).
         // The left digits are the representation of x divided by the base (the "quotient").
 
-        // TODO: Implement this method according to its specification.
-        String[] al = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+        String[] al = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R",
+                "S", "T", "U", "V", "W", "X", "Y", "Z"};
         int r = n % 26;
-        if(r == 0) {
-            if(n == 0) {
-                return "";
-            } else {
-                r = 26;
-            }
+        if (r == 0) {
+            if (n == 0) { return ""; }
+            else { r = 26; }
         }
         String remainder = al[r - 1];
 
         int q = (n - r) / 26;
-        if(q == 0) {
+        if (q == 0) {
             return String.valueOf(remainder);
         }
 
@@ -95,6 +123,7 @@ public class CsvEvaluator {
     public static void main(String[] args) throws IOException {
         // Ensure that the user provided the expected number of program arguments, then extract
         // those arguments.
+
         if (args.length != 1) {
             System.err.println("Usage: java CsvEvaluator <infile>");
             System.exit(1);

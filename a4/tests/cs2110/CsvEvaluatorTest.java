@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class CsvEvaluatorTest {
-
     @Test
     @DisplayName("The column label for column 0 should be the empty string")
     void testColToLetters0() {
@@ -44,7 +43,6 @@ class CsvEvaluatorTest {
         assertEquals("ZZZ", CsvEvaluator.colToLetters(18278));
     }
 
-
     @Test
     @DisplayName("A spreadsheet containing only constants should not be modified when evaluating " +
             "its formulas")
@@ -71,6 +69,7 @@ class CsvEvaluatorTest {
         CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
                 CsvEvaluator.SIMPLIFIED_CSV.print(output));
         assertEquals(expected, output.toString());
+        output.toString();
     }
 
     @Test
@@ -118,6 +117,16 @@ class CsvEvaluatorTest {
         assertEquals(expected, output.toString());
     }
 
+//    @Test
+//    void testPizza() throws IOException{
+//        String input = "pizza.csv";
+//        String expected = "pizza-out.csv";
+//
+//        StringBuilder output = new StringBuilder();
+//        CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
+//                CsvEvaluator.SIMPLIFIED_CSV.print(output));
+//        assertEquals(expected, output.toString());
+//    }
     // Not yet tested:
     // * Formulas with known function applications: correct evaluation
     // * Formulas with unknown function applications: #N/A
