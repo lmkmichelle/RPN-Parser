@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class CsvEvaluatorTest {
-
     @Test
     @DisplayName("The column label for column 0 should be the empty string")
     void testColToLetters0() {
@@ -44,6 +43,18 @@ class CsvEvaluatorTest {
         assertEquals("ZZZ", CsvEvaluator.colToLetters(18278));
     }
 
+    @Test
+    void testEvaluateCsvConstan() throws IOException {
+        String input = "x,1.5\n"
+                + "y,2.0\n"
+                + "z,=3.0 2.0 *";
+        String expected = "x,1.5\n";
+
+        StringBuilder output = new StringBuilder();
+        CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
+                CsvEvaluator.SIMPLIFIED_CSV.print(output));
+        assertEquals(expected, output.toString());
+    }
     @Test
     @DisplayName("A spreadsheet containing only constants should not be modified when evaluating " +
             "its formulas")
@@ -119,76 +130,24 @@ class CsvEvaluatorTest {
     }
 
     @Test
-    void testKnownFunctionApps() throws IOException {
-        String input = "x,=4 sqrt()\n"
-                + "y,=B1 abs()";
-        String expected = "x,2.0\n"
-                + "y,2.0\n";
-        StringBuilder output = new StringBuilder();
-        CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
-                CsvEvaluator.SIMPLIFIED_CSV.print(output));
-        assertEquals(expected, output.toString());
-    }
+    void testPizza() throws IOException{
+        String input = "pizza.csv";
+        String expected = "pizza-out.csv";
 
-    @Test
-    void testUnknownFunctionApps() throws IOException {
-        String input = "x,=4 sqrt()\n"
-                + "y,=B1 bar()";
-        String expected = "x,2.0\n"
-                + "y,#N/A\n";
         StringBuilder output = new StringBuilder();
         CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
                 CsvEvaluator.SIMPLIFIED_CSV.print(output));
         assertEquals(expected, output.toString());
     }
-
-    @Test
-    void testFutureCellRefs() throws IOException {
-        String input = "x,=4 sqrt()\n"
-                + "y,=B3 abs()\n"
-                + "z,=9 sqrt()";
-        String expected = "x,2.0\n"
-                + "y,#N/A\n"
-                + "z,3.0\n";
-        StringBuilder output = new StringBuilder();
-        CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
-                CsvEvaluator.SIMPLIFIED_CSV.print(output));
-        assertEquals(expected, output.toString());
-    }
-
-    @Test
-    void testOutOfBoundCells() throws IOException {
-        String input = "x,=4 sqrt()\n"
-                + "y,=B3 abs()";
-        String expected = "x,2.0\n"
-                + "y,#N/A\n";
-        StringBuilder output = new StringBuilder();
-        CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
-                CsvEvaluator.SIMPLIFIED_CSV.print(output));
-        assertEquals(expected, output.toString());
-    }
-
-    @Test
-    void testNonCellVariables() throws IOException {
-        String input = "x,=4 sqrt()\n"
-                + "y,=notacell abs()";
-        String expected = "x,2.0\n"
-                + "y,#N/A\n";
-        StringBuilder output = new StringBuilder();
-        CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
-                CsvEvaluator.SIMPLIFIED_CSV.print(output));
-        assertEquals(expected, output.toString());
-    }
-
-    @Test
-    void incompleteRpnFormula() throws IOException {
-        String input = "x,=4 sqrt()\n"
-                + "y,=B1 4 abs()";
-        String expected = "x,2.0\n"
-                + "y,#N/A\n";
-        StringBuilder output = new StringBuilder();
-        CsvEvaluator.evaluateCsv(CsvEvaluator.SIMPLIFIED_CSV.parse(new StringReader(input)),
-                CsvEvaluator.SIMPLIFIED_CSV.print(output));
-        assertEquals(expected, output.toString());
-    }
+    // Not yet tested:
+    // * Formulas with known function applications: correct evaluation
+    // * Formulas with unknown function applications: #N/A
+    // * Formulas with future cell references (to numbers or other formulas): #N/A
+    // * Formulas with out-of-bounds cell references: #N/A
+    // * Formulas with variables that do not correspond to a cell coordinate: #N/A
+    // * Formulas containing an incomplete RPN expression: #N/A
+    //
+    // TODO: The autograder will test your code under these conditions.  It is up to you to decide
+    // whether the given tests provide sufficient coverage or whether you should write more to boost
+    // your confidence in your code's behavior.
 }

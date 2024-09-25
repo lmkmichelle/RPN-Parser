@@ -11,15 +11,17 @@ public class Variable implements Expression {
     private static int count = 0;
     String name;
 
+    /**
+     * Creates a variable node with the name `name`.
+     */
     public Variable(String name) {
         this.name = name;
     }
 
     /**
-     * Return the value of a Variable object if it exists in VarTable `vars`.
-     * Throws UnboundVariableExpression if this expression contains a variable whose
-     * value is not in `vars`.
-     * A call to this function does not count as an `operation`.
+     * Return the value of a Variable object if it exists in VarTable `vars`. Throws
+     * UnboundVariableExpression if this expression contains a variable whose value is not in
+     * `vars`. A call to this function does not count as an `operation`.
      */
     @Override
     public double eval(VarTable vars) throws UnboundVariableException {
@@ -27,8 +29,8 @@ public class Variable implements Expression {
     }
 
     /**
-     * Return the number of operations and unary functions contained in this expression.
-     * Does not count calls to `eval()`.
+     * Return the number of operations and unary functions contained in this expression. Does not
+     * count calls to `eval()`.
      */
     @Override
     public int opCount() {
@@ -36,10 +38,9 @@ public class Variable implements Expression {
     }
 
     /**
-    * Return the infix representation of this Variable, which is simply represented by its name,
-    * regardless of notation.
-    * Example: "y", "x"
-    */
+     * Return the infix representation of this Variable, which is simply represented by its name,
+     * regardless of notation. Example: "y", "x"
+     */
     @Override
     public String infixString() {
         return name;
@@ -47,8 +48,7 @@ public class Variable implements Expression {
 
     /**
      * Return the postfix representation of this Variable, which is simply represented by its name,
-     * regardless of notation.
-     * Example: "y", "x"
+     * regardless of notation. Example: "y", "x"
      */
     @Override
     public String postfixString() {
@@ -56,9 +56,9 @@ public class Variable implements Expression {
     }
 
     /**
-     * Returns an Expression containing the optimized Variable object. If the Variable object has an assigned value within the
-     * provided Variable Table, then optimize() will return a Constant object representing that value. Otherwise, it will
-     * optimize to itself.
+     * Returns an Expression containing the optimized Variable object. If the Variable object has an
+     * assigned value within the provided Variable Table, then optimize() will return a Constant
+     * object representing that value. Otherwise, it will optimize to itself.
      */
     @Override
     public Expression optimize(VarTable vars) {
@@ -71,8 +71,8 @@ public class Variable implements Expression {
 
 
     /**
-     * Returns a Set containing all the Variable objects that a formula depends on. A Variable node will
-     * depend only on itself.
+     * Returns a Set containing all the Variable objects that a formula depends on. A Variable node
+     * will depend only on itself.
      */
     @Override
     public Set<String> dependencies() {
@@ -82,8 +82,8 @@ public class Variable implements Expression {
     }
 
     /**
-     * Returns true if two variables are equal, and false if they are not. Variables are considered equal if they
-     * represent the same variable name.
+     * Returns true if two variables are equal, and false if they are not. Variables are considered
+     * equal if they represent the same variable name.
      */
 
     @Override

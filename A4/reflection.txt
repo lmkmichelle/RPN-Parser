@@ -5,7 +5,7 @@
 Partner 1: Firstname Lastname (NetID)  - Michelle Mercer (mzm24)
 Partner 2: Firstname Lastname (NetID)  - Eric Qiu (sq225)
 
-Hours spent working on this assignment: 16
+Hours spent working on this assignment: 12
 
 ## Verification questions
 

@@ -38,44 +38,59 @@ public class CsvEvaluator {
         VarTable vars = new MapVarTable();
         Map<String, Integer> cols = new HashMap<>();
 
-        // Iterate through each row in the CSV file
         for (CSVRecord r : parser) {
-            // Store the row number of the current iteration
             int row = (int) parser.getCurrentLineNumber();
-            // Iterate through the columns in the row
             for (String s : r) {
-                // Stores the column at the current iteration as its respective letter.
                 String col = colToLetters(r.toList().indexOf(s) + 1);
-                // If the current cell is a formula
-                if (s.length() >= 1 && s.charAt(0) == '=') {
-                    try {
-                        // Evaluates the formula and stores it into vars with its respective column-row notation.
-                        Expression expr = RpnParser.parse(s.substring(1), defs);
-                        double constant = expr.eval(vars);
-                        vars.set(col + row, constant);
-                        // Print the value of the evaluated formula
-                        printer.print(constant);
-                    } catch (UnboundVariableException | IncompleteRpnException |
-                             UndefinedFunctionException e) {
-                        // If the formula cannot be evaluated, `#N/A` is printed.
-                        printer.print("#N/A");
+                String converted = "";
+                boolean evaluable = true;
+                try {
+                    if (s.charAt(0) == '=' && s.length() >= 1) {
+                        String[] str = s.substring(1).split("\\s+");
+                        for (String cells : str) {
+                            char c = cells.charAt(0);
+                            //if the entry looks like a coordinate
+                            if (c >= 'A' && c <= 'Z'){
+                                //if entry is related to a value in vartable, converts it to the value
+                                if (vars.contains(cells)) {
+                                    cells = Double.toString(vars.get(cells));
+                                    converted += cells + " ";
+                                } else {
+                                    evaluable = false;
+                                    printer.print("#N/A");
+                                }
+                            } else {
+                                converted += cells + " ";
+                            }
+                        }
+
+                        if(evaluable) {
+                            Expression expr = RpnParser.parse(converted, defs);
+                            vars.set(col + row, expr.eval(MapVarTable.empty()));
+                            printer.print(expr.eval(MapVarTable.empty()));
+                        }
+
+                    } else {
+                        //trys to evaluate the cell; if it is a word, then parsing will throw an exception,
+                        //which will be caught. If it is a constant, then parse will return the constant,
+                        //which is successfully saved into the vartable
+                       Expression expr = RpnParser.parse(s.substring(0), defs);
+                       printer.print(expr.eval(MapVarTable.empty()));
                     }
-                } else {
-                    // Tries to evaluate the cell. If it is a non-number, then parsing will throw a NumberFormatException,
-                    // which will be caught, and the cell itself will be printed. If it is a number, we will parse it into a double,
-                    // which is successfully stored into `vars` with its respective column-row notation.
-                    try {
-                        double value = Double.parseDouble(s);
-                        vars.set(col + row, value);
-                        printer.print(s);
-                    } catch (NumberFormatException e) {
-                        printer.print(s);
-                    }
+
+                } catch (IncompleteRpnException | UndefinedFunctionException | UnboundVariableException e) {
+                    printer.print(s);
+                    continue;
+                } catch (StringIndexOutOfBoundsException e) {
+                    printer.print(s);
                 }
             }
-            // Prints a new line after each row is fully iterated through.
             printer.println();
         }
+
+        // Note that `CSVParser` implements `Iterable<CSVRecord>` and that `CSVRecord` implements
+        // `Iterable<String>`.  This may suggest a solution using "enhanced for-loops" (though this
+        // is not strictly required).
     }
 
     /**
@@ -84,30 +99,27 @@ public class CsvEvaluator {
      */
     public static String colToLetters(int n) {
         // Implementation constraint: this method must be implemented recursively.
+
         // Bijective hexavigesimal (base-26) numeration using the digits 'A'-'Z'.
         // Let x be the largest multiple of the base strictly less than n.
         // The rightmost digit of the representation is the difference between x and n (the
         // "remainder" - may be equal to the base).
         // The left digits are the representation of x divided by the base (the "quotient").
 
-        // The alphabet
-        String[] al = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
-                "P", "Q", "R",
+        String[] al = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R",
                 "S", "T", "U", "V", "W", "X", "Y", "Z"};
         int r = n % 26;
-        // Base case
         if (r == 0) {
-            if (n == 0) {
-                return "";
-            } else {
-                r = 26;
-            }
+            if (n == 0) { return ""; }
+            else { r = 26; }
         }
         String remainder = al[r - 1];
+
         int q = (n - r) / 26;
         if (q == 0) {
             return String.valueOf(remainder);
         }
+
         return colToLetters(q) + remainder;
     }
 

@@ -8,19 +8,23 @@ import java.util.Set;
  * any non-empty subexpression
  */
 public class Application implements Expression {
+
     private Expression argument;
 
     private UnaryFunction func;
 
     /**
-     * Returns the result of applying the function to the argument child passed into the function.
-     * Calling its function counts as one `operation`.
+     * Creates a node representing a value where `argument` is passed into `func`
      */
-
     public Application(UnaryFunction func, Expression argument) {
         this.func = func;
         this.argument = argument;
     }
+
+    /**
+     * Returns the result of applying the function to the argument child passed into the function.
+     * Calling its function counts as one `operation`.
+     */
     @Override
     public double eval(VarTable vars) throws UnboundVariableException {
         return func.apply(argument.eval(vars));
@@ -35,8 +39,8 @@ public class Application implements Expression {
     }
 
     /**
-     * Returns the infix representation of this expression, which is denoted by the name of its function,
-     * followed by the infix representation of its argument, enclosed in parentheses.
+     * Returns the infix representation of this expression, which is denoted by the name of its
+     * function, followed by the infix representation of its argument, enclosed in parentheses.
      * Example: sin((y / 2))
      */
     @Override
@@ -45,9 +49,9 @@ public class Application implements Expression {
     }
 
     /**
-     * Returns the postfix representation of this expression, which is denoted by the argument's postfix representation,
-     * followed by the function name with a "()" suffix.
-     * Example: y 2 / sin()
+     * Returns the postfix representation of this expression, which is denoted by the argument's
+     * postfix representation, followed by the function name with a "()" suffix. Example: y 2 /
+     * sin()
      */
     @Override
     public String postfixString() {
@@ -55,9 +59,10 @@ public class Application implements Expression {
     }
 
     /**
-     * Returns an Expression containing the optimized Application object. An Application can be fully optimized to a Constant if
-     * the operand children in the Application object can be fully optimized to Constants. Otherwise, Application can still be
-     * partially optimized by creating a new copy where the child is replaced with its optimized form.
+     * Returns an Expression containing the optimized Application object. An Application can be
+     * fully optimized to a Constant if the operand children in the Application object can be fully
+     * optimized to Constants. Otherwise, Application can still be partially optimized by creating a
+     * new copy where the child is replaced with its optimized form.
      */
     @Override
     public Expression optimize(VarTable vars) {
@@ -78,12 +83,13 @@ public class Application implements Expression {
     }
 
     /**
-     * Returns true if two Application nodes are equal, and false if they are not. Two Application nodes
-     * are considered equal if both their functions and arguments are equal
+     * Returns true if two Application nodes are equal, and false if they are not. Two Application
+     * nodes are considered equal if both their functions and arguments are equal
      */
     public boolean equals(Object a) {
         if (a instanceof Application) {
-            return func.equals(((Application) a).func) && argument.equals(((Application) a).argument);
+            return func.equals(((Application) a).func) && argument.equals(
+                    ((Application) a).argument);
         }
         return false;
     }
